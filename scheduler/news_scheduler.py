@@ -1,6 +1,5 @@
 import schedule
 import time
-import threading
 import yaml
 from services.news_fetcher import fetch_news_articles
 from services.sentiment_analyzer import analyze_crypto_sentiment
@@ -16,7 +15,7 @@ crypto_pipeline = load_crypto_bert_pipeline()
 
 def scheduled_news_update():
     channel = config["SLACK"].get("CHANNEL", "#general")
-    for topic in ["bitcoin", "ethereum", "solana", "cardano"]:
+    for topic in ["bitcoin", "ethereum", "solana", "cardano", "cryptocoin", "digital asset", "finance"]:
         articles = fetch_news_articles(topic)
         if articles:
             titles = [a.get("title", "") for a in articles]

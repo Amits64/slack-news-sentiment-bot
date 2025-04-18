@@ -12,7 +12,13 @@ def format_sentiment_results(articles, sentiments):
         except Exception:
             pub_str = published_at or "Unknown date"
 
+        # ✅ FIX: unwrap top_k=1 result which is a single-element list
+        if isinstance(sentiment, list):
+            sentiment = sentiment[0]
+
         label = sentiment.get("label", "Unknown")
         score = sentiment.get("score", 0.0)
-        messages.append(f"*{title}*\nPublished on: {pub_str}\nSentiment: *{label}* (Score: {score:.2f})\n<{url}|Read more>\n")
+        messages.append(
+            f"*{title}*\nPublished on: {pub_str}\nSentiment: *{label}* (Score: {score:.2f})\n<{url}|Read more>\n"
+        )
     return "\n".join(messages)
