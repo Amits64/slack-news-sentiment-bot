@@ -1,0 +1,23 @@
+name: "Build and Push Docker Image"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  call-shared-workflow:
+    uses: Amits64/shared_library/.github/workflows/nodejs_ci_workflow.yml@main
+    with:
+      sonar_token: ${{ vars.SONAR_TOKEN }}
+      sonar_organization: ${{ vars.SONAR_ORGANIZATION }}
+      sonar_host_url: ${{ vars.SONARQUBE_HOST_URL }}
+      github_token: ${{ vars.GITHUB_TOKEN }}
+      dockerhub_username: ${{ vars.DOCKERHUB_USERNAME }}
+      dockerhub_password: ${{ vars.DOCKERHUB_PASSWORD }}
+      registry: ${{ vars.REGISTRY }}
+      image: ${{ vars.IMAGE }}
