@@ -29,17 +29,3 @@ jobs:
           push: true
           tags: ${{ vars.REGISTRY }}/${{ vars.IMAGE }}:latest
 
-      - name: Run container with secrets
-        run: |
-          docker run -d \
-            -e SLACK_BOT_TOKEN=${{ secrets.SLACK_BOT_TOKEN }} \
-            -e SLACK_APP_TOKEN=${{ secrets.SLACK_APP_TOKEN }} \
-            -e SLACK_CHANNEL_ID=${{ secrets.SLACK_CHANNEL_ID }} \
-            -e SLACK_SIGNING_SECRET=${{ secrets.SLACK_SIGNING_SECRET }} \
-            -e SLACK_CLIENT_ID=${{ secrets.SLACK_CLIENT_ID }} \
-            -e SLACK_CLIENT_SECRET=${{ secrets.SLACK_CLIENT_SECRET }} \
-            -e SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK }} \
-            -e NEWSAPI_API_KEY=${{ secrets.NEWSAPI_API_KEY }} \
-            -p 80:80 \
-            ${{ secrets.DOCKERHUB_USERNAME }}/slack-news-sentiment-bot:latest
-
