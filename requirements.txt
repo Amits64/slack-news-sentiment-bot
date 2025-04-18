@@ -1,10 +1,8 @@
-slack-bolt
-slack-sdk
-transformers
-requests
-python-dateutil
-cachetools
-aiohttp
-torch
+slack_bolt
 schedule
-
+requests
+PyYAML
+transformers
+torch
+cachetools
+python-dateutil
