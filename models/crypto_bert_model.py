@@ -11,5 +11,5 @@ def load_crypto_bert_pipeline():
         max_length=64,
         truncation=True,
         padding='max_length',
-        return_all_scores=False  # important: 'False' for returning top labels only
+        top_k=None
     )

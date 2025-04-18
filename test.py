@@ -1,4 +1,5 @@
 import os
+import yaml
 import logging
 import requests
 import schedule
@@ -15,19 +16,20 @@ from cachetools import TTLCache
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Read secrets directly from environment
-SLACK_BOT_TOKEN = os.getenv("SLACK_BOT_TOKEN")
-SLACK_APP_TOKEN = os.getenv("SLACK_APP_TOKEN")
-SLACK_CHANNEL = os.getenv("SLACK_CHANNEL_ID", "#general")
-NEWSAPI_KEY = os.getenv("NEWSAPI_API_KEY")
-
-# Validate critical secrets
-if not all([SLACK_BOT_TOKEN, SLACK_APP_TOKEN, NEWSAPI_KEY]):
-    logger.error("Missing one or more required environment variables.")
+# Load configuration from YAML file
+try:
+    with open("config/credentials.yaml", "r") as file:
+        config = yaml.safe_load(file)
+except Exception as e:
+    logger.error(f"Failed to load configuration: {e}")
     exit(1)
 
+# Set environment variables for Slack Bolt
+os.environ["SLACK_BOT_TOKEN"] = config["SLACK"]["BOT_TOKEN"]
+os.environ["SLACK_APP_TOKEN"] = config["SLACK"]["APP_TOKEN"]
+
 # Initialize Slack app
-app = App(token=SLACK_BOT_TOKEN)
+app = App(token=os.environ["SLACK_BOT_TOKEN"])
 
 # Initialize sentiment analysis pipeline
 try:
@@ -40,7 +42,7 @@ except Exception as e:
     exit(1)
 
 # Initialize TTLCache for news articles
-news_cache = TTLCache(maxsize=100, ttl=300)
+news_cache = TTLCache(maxsize=100, ttl=300)  # Cache up to 100 topics for 5 minutes
 cache_lock = threading.Lock()
 
 def fetch_news_articles(topic):
@@ -50,6 +52,8 @@ def fetch_news_articles(topic):
             logger.info(f"Using cached data for topic: {topic}")
             return news_cache[topic]
 
+    # Fetch from NewsAPI if not in cache
+    api_key = config["NEWSAPI"]["API_KEY"]
     base_url = "https://newsapi.org/v2/everything"
     from_date = (datetime.utcnow() - timedelta(days=7)).date().isoformat()
     to_date = datetime.utcnow().date().isoformat()
@@ -61,7 +65,7 @@ def fetch_news_articles(topic):
         "language": "en",
         "sortBy": "relevancy",
         "pageSize": 5,
-        "apiKey": NEWSAPI_KEY
+        "apiKey": api_key
     }
 
     try:
@@ -84,6 +88,7 @@ def format_sentiment_analysis(articles):
         url = article.get("url", "")
         published_at = article.get("publishedAt", "")
 
+        # Parse and format publication date
         if published_at:
             try:
                 dt = parser.isoparse(published_at)
@@ -134,25 +139,28 @@ def handle_app_mention_events(body, say):
 
 def scheduled_news_update():
     """Scheduled job to fetch and post updates for tracked topics."""
+    channel = config["SLACK"].get("CHANNEL", "#general")
     for topic in ["bitcoin", "ethereum", "solana", "cardano"]:
         articles = fetch_news_articles(topic)
         if articles:
             msg = f"*Latest {topic.title()} News:*\n" + format_sentiment_analysis(articles)
-            app.client.chat_postMessage(channel=SLACK_CHANNEL, text=msg)
+            app.client.chat_postMessage(channel=channel, text=msg)
 
 def start_scheduler():
     """Continuously run scheduled pending jobs."""
+    # Schedule the update every hour
     schedule.every().hour.do(scheduled_news_update)
     while True:
         schedule.run_pending()
         time.sleep(1)
 
 if __name__ == "__main__":
+    # Start scheduler in background thread
     threading.Thread(target=start_scheduler, daemon=True).start()
 
+    # Start Slack app in Socket Mode (blocking)
     try:
-        handler = SocketModeHandler(app, SLACK_APP_TOKEN)
+        handler = SocketModeHandler(app, os.environ["SLACK_APP_TOKEN"])
         handler.start()
     except Exception as e:
         logger.error(f"Failed to start Slack app: {e}")
-
