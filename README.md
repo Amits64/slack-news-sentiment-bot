@@ -2,113 +2,112 @@
 # Slack News Sentiment Bot
 
 ![Python](https://img.shields.io/badge/python-3.9-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-A Slack bot that fetches the latest news articles on specified topics, performs sentiment analysis using a fine-tuned DistilRoBERTa model, and posts the summarized results directly into your Slack channels.
+A Slack bot that fetches the latest news articles on specified topics, performs sentiment analysis using the CryptoBERT model (fine-tuned on financial/crypto social media text), runs a sentiment-aligned trading backtest using Backtrader, and posts the summarized results directly into your Slack channels.
 
 ## Features
 
-- Fetches recent news articles from NewsAPI based on user-specified topics.
-- Performs sentiment analysis on article titles using a financial news sentiment model.
-- Posts formatted summaries with sentiment scores to Slack channels.
-- Caches recent queries to minimize redundant API calls.
-- Supports scheduled updates for predefined topics.
+- Fetches recent news articles using NewsAPI.
+- Performs sentiment analysis using a domain-specific CryptoBERT model.
+- Schedules regular sentiment updates.
+- Displays formatted summaries in Slack with sentiment scores and source links.
+- Performs backtesting using historical OHLCV data from Yahoo Finance (`yfinance`).
+- Posts a trading performance summary including portfolio value, Sharpe ratio, and trade stats.
+- Interactive Slack UI with button-based topic selection.
 
 ## Installation
 
 ### Prerequisites
 
-- Python 3.9
-- Slack workspace with permissions to add bots
-- NewsAPI account for API key
+- Python 3.9+
+- Slack App with bot and socket mode permissions
+- NewsAPI API key
 
 ### Steps
 
-1. **Clone the repository:**
+1. **Clone the repository:**
 
    ```bash
    git clone https://github.com/yourusername/slack-news-sentiment-bot.git
    cd slack-news-sentiment-bot
    ```
-
 
-2. **Set up a virtual environment (optional but recommended):**
+2. **Set up a virtual environment:**
 
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
-
 
-3. **Install dependencies:**
+3. **Install dependencies:**
 
    ```bash
    pip install -r requirements.txt
    ```
-
 
-4. **Configure environment variables:**
+4. **Set your configuration:**
 
-   Create a `.env` file in the root directory and add the following:
+   Create a `config/credentials.yaml` file:
 
-   ```env
-   SLACK_BOT_TOKEN=your-slack-bot-token
-   SLACK_APP_TOKEN=your-slack-app-token
-   NEWSAPI_API_KEY=your-newsapi-key
-   SLACK_CHANNEL=your-slack-channel-id
+   ```yaml
+   SLACK:
+     BOT_TOKEN: xoxb-...
+     APP_TOKEN: xapp-...
+     CHANNEL_ID: C123456789
+
+   NEWSAPI:
+     API_KEY: your-newsapi-key
    ```
-
-
-   Alternatively, set these variables directly in your environment.
 
 ## Usage
 
-Run the bot using the following command:
-
+Run the bot using:
 
 ```bash
-python bot.py
+python main.py
 ```
-
 
-Once running, you can interact with the bot in Slack by mentioning it and providing a topic:
+Once running, you can:
 
+- Mention the bot in any channel: `@NewsSentimentBot BTC-USD`
+- Or use interactive buttons like `Bitcoin`, `Ethereum`, etc., to trigger analysis
 
-```
-@NewsSentimentBot Bitcoin
-```
-
+The bot will:
 
-The bot will respond with the latest news articles on Bitcoin along with sentiment analysis.
+1. Fetch news for the topic
+2. Perform sentiment analysis
+3. Backtest the strategy using past price data
+4. Post both sentiment results and backtest performance in Slack
 
 ## Technologies Used
 
-- [Python 3.9](https://www.python.org/)
-- [Slack Bolt for Python](https://slack.dev/bolt-python/)
-- [Transformers](https://huggingface.co/transformers/)
+- [Python 3.9+](https://www.python.org/)
+- [Slack Bolt](https://slack.dev/bolt-python/)
+- [Hugging Face Transformers](https://huggingface.co/transformers/)
+- [CryptoBERT Model](https://huggingface.co/ElKulako/cryptobert)
+- [Backtrader](https://www.backtrader.com/)
 - [NewsAPI](https://newsapi.org/)
-- [Cachetools](https://pypi.org/project/cachetools/)
-- [Schedule](https://pypi.org/project/schedule/)
+- [YFinance](https://pypi.org/project/yfinance/)
+- [Schedule](https://pypi.org/project/schedule/)
 
 ## Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are welcome!
 
-1. Fork the repository.
-2. Create a new branch: `git checkout -b feature/your-feature-name`
-3. Commit your changes: `git commit -m 'Add your feature'`
-4. Push to the branch: `git push origin feature/your-feature-name`
-5. Open a pull request.
+1. Fork the repository
+2. Create a new branch: `git checkout -b feature/your-feature`
+3. Make your changes and commit
+4. Push and open a pull request
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file.
 
 ## Acknowledgments
 
-- [Hugging Face](https://huggingface.co/) for the Transformers library and pre-trained models.
-- [Slack](https://api.slack.com/) for the Slack API and Bolt framework.
-- [NewsAPI](https://newsapi.org/) for providing news data.
-
----
+- [Hugging Face](https://huggingface.co/) for the pre-trained NLP models
+- [Slack](https://api.slack.com/) for the Bolt framework
+- [NewsAPI](https://newsapi.org/) for real-time news data
+- [Yahoo Finance](https://finance.yahoo.com/) for historical pricing
 
