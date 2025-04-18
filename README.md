@@ -1,7 +1,4 @@
-Certainly! Here's a comprehensive `README.md` file tailored for your Slack News Sentiment Bot project. This README includes sections such as project description, features, installation, usage, technologies used, contributing guidelines, license, and acknowledgments. You can customize it further based on your specific project details.
-
----
-
+[![CI](https://github.com/Amits64/slack-news-sentiment-bot/actions/workflows/docker-image.yml/badge.svg)](https://github.com/Amits64/slack-news-sentiment-bot/actions/workflows/docker-image.yml)
 # Slack News Sentiment Bot
 
 ![Python](https://img.shields.io/badge/python-3.9-blue)
@@ -115,4 +112,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ---
 
-Feel free to customize this `README.md` further to match your project's specifics, such as adding badges, screenshots, or additional sections as needed. 
