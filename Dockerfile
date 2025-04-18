@@ -19,9 +19,6 @@ RUN pip install --prefix=/install --no-cache-dir -r requirements.txt
 # Copy application source code
 COPY . .
 
-# Install application dependencies to /install
-RUN pip install --prefix=/install .
-
 # Stage 2: Runtime Stage
 FROM python:3.9-slim
 
