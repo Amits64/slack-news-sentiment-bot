@@ -1,4 +1,2 @@
 config/
 .venv/
-services/__pycache__/
-data/historical/

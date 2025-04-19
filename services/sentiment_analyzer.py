@@ -11,11 +11,24 @@ def analyze_crypto_sentiment(titles, pipeline):
         logger.info(f"Analyzing sentiment for {len(titles)} titles...")
         raw_results = pipeline(titles)
 
-        # ✅ Flatten top_k=1 output: convert [[{...}], [{...}]] to [{...}, {...}]
-        flattened = [r[0] if isinstance(r, list) else r for r in raw_results]
+        def safe_extract(entry):
+            if isinstance(entry, list) and entry:
+                entry = entry[0]
+            if isinstance(entry, tuple) and entry:
+                entry = entry[0]
+            if isinstance(entry, dict):
+                label = entry.get("label", "neutral")
+                score = entry.get("score", 0.0)
+                return {
+                    "label": label.lower() if isinstance(label, str) else "neutral",
+                    "score": score
+                }
+            return {"label": "neutral", "score": 0.0}
 
-        logger.info(f"Sample sentiment output: {flattened[:1]}")
-        return flattened
+        cleaned = [safe_extract(r) for r in raw_results]
+
+        logger.info(f"Sample sentiment output: {cleaned[:1]}")
+        return cleaned
 
     except Exception as e:
         logger.error(f"Sentiment analysis failed: {e}")

@@ -67,9 +67,6 @@ if __name__ == "__main__":
     # Run scheduler in background
     threading.Thread(target=start_scheduler, daemon=True).start()
 
-    # Run backtest for testing (can be removed in prod)
-    # run_sentiment_backtest("BTC-USD", "bitcoin")
-
     # Launch Slack app via Socket Mode
     try:
         handler = SocketModeHandler(app, config["SLACK"]["APP_TOKEN"])
