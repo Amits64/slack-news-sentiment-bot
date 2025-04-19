@@ -3,7 +3,6 @@ import time
 import yaml
 from services.news_fetcher import fetch_news_articles
 from services.sentiment_analyzer import analyze_crypto_sentiment
-from services.message_formatter import format_sentiment_results
 from models.crypto_bert_model import load_crypto_bert_pipeline
 from slack_bolt import App
 
@@ -18,9 +17,33 @@ def scheduled_news_update():
     for topic in ["bitcoin", "ethereum", "solana", "cardano", "cryptocoin", "digital asset", "finance"]:
         articles = fetch_news_articles(topic)
         if articles:
+            # Add source tag if not already present
+            for a in articles:
+                if "twitter.com" in a.get("url", "").lower():
+                    a["source"] = "Twitter"
+                else:
+                    a["source"] = "NewsAPI"
+
             titles = [a.get("title", "") for a in articles]
             sentiments = analyze_crypto_sentiment(titles, crypto_pipeline)
-            message = f"*Latest {topic.title()} News:*\n" + format_sentiment_results(articles, sentiments)
+
+            # Append source tag into formatted message
+            message = f"*🗞️ Latest {topic.title()} News:*\n"
+            for article, sentiment in zip(articles, sentiments):
+                label = sentiment.get("label", "Unknown")
+                score = sentiment.get("score", 0.0)
+                url = article.get("url", "")
+                title = article.get("title", "No Title")
+                published_at = article.get("publishedAt", "Unknown time")
+                source = article.get("source", "Unknown")
+
+                message += (
+                    f"• [{source}] *{title}*\n"
+                    f"  Sentiment: *{label}* (Score: {score:.2f})\n"
+                    f"  Published: {published_at}\n"
+                    f"  <{url}|Read more>\n\n"
+                )
+
             app.client.chat_postMessage(channel=channel, text=message)
 
 def start_scheduler():
