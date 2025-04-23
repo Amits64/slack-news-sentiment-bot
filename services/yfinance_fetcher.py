@@ -14,6 +14,7 @@ def fetch_price_data(symbol: str, period: str = "6mo", interval: str = "1h"):
     df = df[["Open", "High", "Low", "Close", "Volume"]]
 
     return df
+<<<<<<< HEAD
 
 def get_top_volume_symbols(limit=20):
     major_cryptos = [
@@ -42,3 +43,5 @@ def get_top_volume_symbols(limit=20):
     top = [s[0] for s in volume_data[:limit]]
     print(f"\n🎯 Top {len(top)} Symbols by Volume: {top}")
     return top
+=======
+>>>>>>> d8e31c57aae9838d2c072ba3edd4080cd03e4182
